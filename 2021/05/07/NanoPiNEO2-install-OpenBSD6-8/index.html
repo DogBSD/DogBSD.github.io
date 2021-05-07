@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="John Doe">
+
+
+
+
+
+<title>在NanoPiNEO2上安装Open BSD6.8 | Hexo</title>
+
+
+
+    <link rel="icon" href="/a.png">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">CatBSD&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">CatBSD&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">在NanoPiNEO2上安装Open BSD6.8</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">John Doe</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">May 7, 2021&nbsp;&nbsp;13:03:26</a>
+                        </span>
+                    
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <blockquote>
+<p>从<a target="_blank" rel="noopener" href="https://www.openbsd.org/arm64.html">OpenBSD官方支持</a>的列表中，没有说明支持NanoPi NEO2，但是可以发现NEO2是<code> Allwinner H5</code>的方案，OpenBSD ARM64是支持的。</p>
+</blockquote>
+<span id="more"></span>
+
+<hr>
+<h3 id="准备材料"><a href="#准备材料" class="headerlink" title="准备材料"></a>准备材料</h3><ul>
+<li><p>openbsd ARM64 系统</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://cdn.openbsd.org/pub/OpenBSD/6.8/arm64/">https://cdn.openbsd.org/pub/OpenBSD/6.8/arm64/</a></li>
+</ul>
+</li>
+<li><p>u-boot-nanopi-neo2</p>
+<ul>
+<li>可以百度搜索，或者从<a target="_blank" rel="noopener" href="https://pkg.freebsd.org/FreeBSD:12:aarch64/quarterly/All/u-boot-nanopi-neo2-2020.10_1.txz">https://pkg.freebsd.org/FreeBSD:12:aarch64/quarterly/All/u-boot-nanopi-neo2-2020.10_1.txz</a> 下载</li>
+</ul>
+</li>
+<li><p>4G TF卡 与读卡器</p>
+</li>
+<li><p>一台Linux/BSD系统的PC</p>
+</li>
+</ul>
+<p>至于NanoPi NEO2具体的配置，可以参考：<a target="_blank" rel="noopener" href="http://wiki.friendlyarm.com/wiki/index.php/NanoPi_NEO2/zh">http://wiki.friendlyarm.com/wiki/index.php/NanoPi_NEO2/zh</a></p>
+<h3 id="烧录镜像"><a href="#烧录镜像" class="headerlink" title="烧录镜像"></a>烧录镜像</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">lsblk   //确定那个设备，比如我的是 sdd</span><br><span class="line">sudo dd if=miniroot68.img of=/dev/sdd bs=1M conv=sync </span><br><span class="line"></span><br><span class="line"></span><br><span class="line">[sudo] ruoyi 的密码：</span><br><span class="line">记录了33+0 的读入</span><br><span class="line">记录了33+0 的写出</span><br><span class="line">34603008字节（35 MB，33 MiB）已复制，22.4249 s，1.5 MB/s</span><br></pre></td></tr></table></figure>
+
+<h3 id="烧录U-boot"><a href="#烧录U-boot" class="headerlink" title="烧录U-boot"></a>烧录U-boot</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo dd if=u-boot-sunxi-with-spl.bin of=/dev/sdd bs=1k seek=8 conv=sync</span><br></pre></td></tr></table></figure>
+<h3 id="tty连接Pi"><a href="#tty连接Pi" class="headerlink" title="tty连接Pi"></a>tty连接Pi</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><span class="line">sudo screen /dev/ttyUSB0 115200</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 显示如下信息</span><br><span class="line">U-Boot SPL 2020.10 (Feb 03 2021 - 17:28:10 +0000)</span><br><span class="line">DRAM: 512 MiB</span><br><span class="line">Trying to boot from MMC1</span><br><span class="line">NOTICE:  BL31: v2.4(release):</span><br><span class="line">NOTICE:  BL31: Built : 18:53:16, Feb  2 2021</span><br><span class="line">NOTICE:  BL31: Detected Allwinner H5 SoC (1718)</span><br><span class="line">NOTICE:  BL31: Found U-Boot DTB at 0x408e910, model: FriendlyARM NanoPi NEO 2</span><br><span class="line">NOTICE:  PMIC: Assuming H5 reference regulator desi</span><br><span class="line"></span><br><span class="line">** Unrecognized filesystem type **</span><br><span class="line">Found 3 disks</span><br><span class="line">No EFI system partition</span><br><span class="line">BootOrder not defined</span><br><span class="line">EFI boot manager: Cannot load any image</span><br><span class="line">168696 bytes read in 23 ms (7 MiB/s)</span><br><span class="line">libfdt fdt_check_header(): FDT_ERR_BADMAGIC</span><br><span class="line">Booting /efi\boot\bootaa64.efi</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">type 0x5 pa 0x5df60000 va 0xa8898000 pages 0x10 attr 0x8000000000000008</span><br><span class="line">type 0x2 pa 0x5df70000 va 0x5df70000 pages 0x2090 attr 0x8</span><br><span class="line">Copyright (c) 1982, 1986, 1989, 1991, 1993</span><br><span class="line">        The Regents of the University of California.  All rights reserved.</span><br><span class="line">Copyright (c) 1995-2020 OpenBSD. All rights reserved.  https://www.OpenBSD.org</span><br><span class="line"></span><br><span class="line">OpenBSD 6.8 (RAMDISK) #780: Sun Oct  4 20:57:28 MDT 2020</span><br><span class="line">    deraadt@arm64.openbsd.org:/usr/src/sys/arch/arm64/compile/RAMDISK</span><br><span class="line">real mem  = 404865024 (386MB)</span><br><span class="line">avail mem = 359616512 (342MB)</span><br><span class="line">random: boothowto does not indicate good seed</span><br><span class="line">mainbus0 at root: FriendlyARM NanoPi NEO 2</span><br><span class="line">psci0 at mainbus0: PSCI 1.1, SMCCC 1.2</span><br><span class="line">cpu0 at mainbus0 mpidr 0: ARM Cortex-A53 r0p4</span><br><span class="line">cpu0: 32KB 64b/line 2-way L1 VIPT I-cache, 32KB 64b/line 4-way L1 D-cache</span><br><span class="line">cpu0: 512KB 64b/line 16-way L2 cache</span><br><span class="line">efi0 at mainbus0: UEFI 2.8</span><br><span class="line">efi0: Das U-Boot rev 0x20201000</span><br><span class="line">sxiccmu0 at mainbus0</span><br><span class="line">simplebus0 at mainbus0: &quot;soc&quot;</span><br><span class="line">sxisid0 at simplebus0</span><br><span class="line">sxiccmu1 at simplebus0</span><br><span class="line">sxipio0 at simplebus0: 94 pins</span><br><span class="line">ampintc0 at simplebus0 nirq 224, ncpu 4: &quot;interrupt-controller&quot;</span><br><span class="line">sxirtc0 at simplebus0</span><br><span class="line">sxiccmu2 at simplebus0</span><br><span class="line">sxipio1 at simplebus0: 12 pins</span><br><span class="line">sxisyscon0 at simplebus0</span><br><span class="line">&quot;clock&quot; at simplebus0 not configured</span><br><span class="line">&quot;mixer&quot; at simplebus0 not configured</span><br><span class="line">&quot;dma-controller&quot; at simplebus0 not configured</span><br><span class="line">&quot;lcd-controller&quot; at simplebus0 not configured</span><br><span class="line">sximmc0 at simplebus0</span><br><span class="line">igured</span><br><span class="line">dwxe0 at simplebus0: address 02:01:b4:97:2d:ee</span><br><span class="line">rgephy0 at dwxe0 phy 7: RTL8169S/8110S/8211 PHY, rev. 5</span><br><span class="line">&quot;dram-controller&quot; at simplebus0 not configured</span><br><span class="line">sxidog0 at simplebus0</span><br><span class="line">com0 at simplebus0: ns16550, no working fifo</span><br><span class="line">com0: console</span><br><span class="line">&quot;hdmi-phy&quot; at simplebus0 not&quot; rev 1.00/1.00 addr 1</span><br><span class="line">&quot;pmu&quot; at mainbus0 not configured</span><br><span class="line">agtimer0 at mainbus0: tick rate 24000 KHz</span><br><span class="line">&quot;leds&quot; at mainbus0 not configured</span><br><span class="line">&quot;gmac-3v3&quot; at mainbus0 not configured</span><br><span class="line">&quot;vcc3v3&quot; at mainbus0 not configured</span><br><span class="line">&quot;usb0-vbus&quot; at mainbus0 not configured</span><br><span class="line">&quot;binman&quot; at mainbus0 not con 1 lun 0: &lt;SD/MMC, SD, 0020&gt; removable</span><br><span class="line">sd0: 3805MB, 512 bytes/sector, 7793664 sectors</span><br><span class="line"> 802.11n NIC&quot; rev 2.00/0.00 addr 2on 1 interface 0 &quot;Realtek</span><br><span class="line">urtwn0: MAC/BB RTL8188EU, RF 6052 1T1R, address 40:a5:ef:41:ac:44</span><br><span class="line">softraid0 at root</span><br><span class="line">scsibus1 at softraid0: 256 targets</span><br><span class="line">bootfile: sd0a:/bsd</span><br><span class="line">boot device: sd0</span><br><span class="line">root on rd0a swap on rd0b dump on rd0b</span><br><span class="line">WARNING: bad cloc</span><br><span class="line"></span><br><span class="line">(I)nstall, (U)pgrade, (A)utoinstall or (S)hell?  i</span><br><span class="line"></span><br><span class="line">## 这一步需要注意了，问需要安装还是更新或者自动安装</span><br></pre></td></tr></table></figure>
+<h3 id="Install"><a href="#Install" class="headerlink" title="Install"></a>Install</h3><p>这里我选择手动安装，输入：<code>I </code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">At any prompt except password prompts you can escape to a shell by</span><br><span class="line">typing &#x27;!&#x27;. Default answers are shown in []&#x27;s and are selected by</span><br><span class="line">pressing RETURN.  You can exit this program at any time by pressing</span><br><span class="line">Control-C, but this can leave your system in an inconsistent state.</span><br><span class="line"></span><br><span class="line">Terminal type? [vt220] </span><br></pre></td></tr></table></figure>
+<p>提示输入hostname，这里输入：<code>my.pi</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Terminal type? [vt220] </span><br><span class="line">System hostname? (short form, e.g. &#x27;) my.pi   </span><br></pre></td></tr></table></figure>
+<p>提示配置网络接口：这里我不清楚dwxe0 urtwn0的接口分别是什么。neo2是没有无线网卡的，但是我插了USB的无线网卡在上面，不清楚是否识别了。直接回车，目前没有插网线，提示没有识别到网络连接，就先不去管。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Available network interfaces are: dwxe0 urtwn0 vlan0.</span><br><span class="line">Which network interface do you wish to configure? (or &#x27;done&#x27;) [dwxe0] </span><br><span class="line">IPv4 address for dwxe0? (or &#x27;dhcp&#x27; or &#x27;none&#x27;) [dhcp] </span><br><span class="line">dwxe0: no link.......... sleeping</span><br><span class="line">IPv6 address for dwxe0? (or &#x27;autoconf&#x27; or &#x27;none&#x27;) [none] </span><br><span class="line">Available network interfaces are: dwxe0 urtwn0 vlan0.</span><br><span class="line">Which network interface do you wish to configure? (or &#x27;done&#x27;) [done] </span><br></pre></td></tr></table></figure>
+
+<p>提示输入DNS相关，直接默认好了，因为我在本地配置了DNS，只要通过路由器进行连接。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">DNS domain name? (e.g. &#x27;example.com&#x27;) [pi] </span><br><span class="line">DNS nameservers? (IP address list or &#x27;none&#x27;) [none] </span><br></pre></td></tr></table></figure>
+
+<p>提示输入root密码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Password for root account? (will not echo) </span><br><span class="line">Password for root account? (again) </span><br></pre></td></tr></table></figure>
+
+<p>提示是否开启SSH服务</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Start sshd(8) by default? [yes] </span><br></pre></td></tr></table></figure>
+
+
+<p>提示添加用户,默认no，直接输入需要增加的用户</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Setup a user? (enter a lower-case loginname, or &#x27;no&#x27;) [no] zhouzhou</span><br><span class="line">Full name for user zhouzhou? [zhouzhou] </span><br><span class="line">Password for user zhouzhou? (will not echo) </span><br><span class="line">Password for user zhouzhou? (again) </span><br><span class="line">WARNING: root is targeted by password guessing attacks, pubkeys are safer.</span><br><span class="line">Allow root ssh login? (yes, no, prohibit-password) [no]   //不允许root登录</span><br></pre></td></tr></table></figure>
+<p>提示安装的磁盘选择哪一个，一般pi进行安装就默认啦，除非你选择硬盘启动。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">Available disks are: sd0.</span><br><span class="line">Which disk is the root disk? (&#x27;?&#x27; for details) [sd0] ?</span><br><span class="line">sd0: SD/MMC, SD, 0020  (3.7G)</span><br><span class="line">Available disks are: sd0.</span><br><span class="line">Which disk is the root disk? (&#x27;?&#x27; for details) [sd0] </span><br><span class="line">Disk: sd0       geometry: 485/255/63 [7793664 Sectors]</span><br><span class="line">Offset: 0       Signature: 0xAA55</span><br><span class="line">            Starting         Ending         LBA Info:</span><br><span class="line"> #: id      C   H   S -      C   H   S [       start:        size ]</span><br><span class="line">-------------------------------------------------------------------------------</span><br><span class="line">*0: 0C      2  10   9 -      2 140  10 [       32768:        8192 ] FAT32L      </span><br><span class="line"> 1: 00      0   0   0 -      0   0   0 [           0:           0 ] unused      </span><br><span class="line"> 2: 00      0   0   0 -      0   0   0 [           0:           0 ] unused      </span><br><span class="line"> 3: A6      2 140  11 -      4  52  48 [       40960:       26624 ] OpenBSD     </span><br><span class="line">Use (W)hole disk or (E)dit the MBR? [whole] </span><br><span class="line">Creating a msdos partition and an OpenBSD partition for rest of sd0...done.</span><br><span class="line">/dev/rsd0i: 32668 sectors in 8167 FAT16 clusters (2048 bytes/cluster)</span><br><span class="line">bps=512 spc=4 res=1 nft=2 rde=512 mid=0xf8 spf=32 spt=63 hds=255 hid=32768 bsec=32768</span><br><span class="line"></span><br><span class="line">Use (A)uto layout, (E)dit auto layout, or create (C)ustom layout? [a] </span><br><span class="line">/dev/rsd0a: 866.9MB in 1775360 sectors of 512 bytes</span><br><span class="line">5 cylinder groups of 202.50MB, 12960 blocks, 25920 inodes each</span><br></pre></td></tr></table></figure>
+
+<p>提示列表获取失败，因为我没有配置好网络,这里选择国内源进行代替官方源，好赞：<code>mirrors.tuna.tsinghua.edu.cn</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">(Unable to get list from ftp.openbsd.org, but that is OK)</span><br><span class="line"></span><br><span class="line">A response is required.</span><br><span class="line"></span><br><span class="line">HTTP Server? (hostname or &#x27;done&#x27;) mirrors.tuna.tsinghua.edu.cn</span><br><span class="line">Server directory? [pub/OpenBSD/6.8/arm64] </span><br><span class="line">Unable to connect using https. Use http instead? [no] yes</span><br><span class="line"></span><br><span class="line">Select sets by entering a set name, a file name pattern or &#x27;all&#x27;. De-select</span><br><span class="line">sets by prepending a &#x27;-&#x27;, e.g.: &#x27;-game*&#x27;. Selected sets are labelled &#x27;[X]&#x27;.</span><br><span class="line">    [X] bsd           [X] base68.tgz    [X] game68.tgz    [X] xfont68.tgz</span><br><span class="line">    [X] bsd.mp        [X] comp68.tgz    [X] xbase68.tgz   [X] xserv68.tgz</span><br><span class="line">    [X] bsd.rd        [X] man68.tgz     [X] xshare68.tgz</span><br><span class="line">Set name(s)? (or &#x27;abort&#x27; or &#x27;done&#x27;) [done] </span><br><span class="line">Get/Verify SHA256.sig   100% |**************************|  1454       00:00    </span><br><span class="line">Signature Verified</span><br><span class="line">Get/Verify bsd          100% |**************************| 13017 KB    00:19    </span><br><span class="line">Get/Verify bsd.mp       100% |**************************| 13082 KB    00:18    </span><br><span class="line">Get/Verify bsd.rd       100% |**************************| 12669 KB    00:27    </span><br><span class="line">Get/Verify base68.tgz   100% |**************************|   216 MB    04:52    </span><br><span class="line">Get/Verify comp68.tgz   100% |**************************| 53375 KB    01:24    </span><br><span class="line">Get/Verify man68.tgz    100% |**************************|  7484 KB    00:15    </span><br><span class="line">Get/Verify game68.tgz   100% |**************************|  2677 KB    00:06    </span><br><span class="line">Get/Verify xbase68.tgz  100% |**************************| 24967 KB    00:35    </span><br><span class="line">Get/Verify xshare68.tgz 100% |**************************|  4500 KB    00:07    </span><br><span class="line">Get/Verify xfont68.tgz  100% |**************************| 39344 KB    01:03 </span><br><span class="line"></span><br><span class="line">....</span><br><span class="line"></span><br><span class="line"># 在之后的installeding部分，我的储存卡容量不够，base68安装到一半就爆卡了，建议使用 8G及以上的卡进行安装吧。</span><br></pre></td></tr></table></figure>
+
+
+<p>提示重启</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">CONGRATULATIONS! Your OpenBSD install has been successfully completed!</span><br><span class="line"></span><br><span class="line">When you login to your new system the first time, please read your mail</span><br><span class="line">using the &#x27;mail&#x27; command.</span><br><span class="line"></span><br><span class="line">Exit to (S)hell, (H)alt or (R)eboot? [reboot] r</span><br><span class="line">syncing disks... done</span><br><span class="line">ehci0: halt timeout</span><br><span class="line">ehci0: reset timeout</span><br><span class="line">rebooting...</span><br></pre></td></tr></table></figure>
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>John Doe</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://example.com/2021/05/07/NanoPiNEO2-install-OpenBSD6-8/">http://example.com/2021/05/07/NanoPiNEO2-install-OpenBSD6-8/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Pi/"># Pi</a>
+                    
+                        <a href="/tags/OpenBSD/"># OpenBSD</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2021/05/07/seo-for-hexo/">为Hexo添加优化便于百度收录</a>
+            
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© John Doe | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="John Doe">
+
+
+
+
+
+<title>FreeBSD配置sudo并设置安全策略 | Hexo</title>
+
+
+
+    <link rel="icon" href="/a.png">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">CatBSD&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">CatBSD&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">FreeBSD配置sudo并设置安全策略</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">John Doe</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">May 7, 2021&nbsp;&nbsp;13:13:06</a>
+                        </span>
+                    
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p>由于本地的FreeBSD服务器只是自己一个人使用，有些权限需要root权限去完成，所以就此给FreeBSD配置普通账户<code>zhouzhou</code>可以使用sudo。</p>
+<h2 id="1-查看zhouzhou账户的用户组"><a href="#1-查看zhouzhou账户的用户组" class="headerlink" title="1.查看zhouzhou账户的用户组"></a>1.查看zhouzhou账户的用户组</h2><blockquote>
+<p><code>zhouzhou</code>是在安装BSD时add的，当时把账户放在了wheel组</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">root@FreeBSD:/home/zhouzhou <span class="comment"># gr</span></span><br><span class="line">graid  graid3 grdc   grep   groups growfs </span><br><span class="line">root@FreeBSD:/home/zhouzhou <span class="comment"># groups zhouzhou</span></span><br><span class="line">zhouzhou wheel</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-赋予wheel组sudo权限"><a href="#2-赋予wheel组sudo权限" class="headerlink" title="2.赋予wheel组sudo权限"></a>2.赋予wheel组sudo权限</h2><blockquote>
+<p>只要给wheel组所有的成员sudo权限即可，自己一个人使用并没有什么问题，如果是多个人使用，应该把操作人员进行分组，方便更好的权限管理。</p>
+</blockquote>
+<h3 id="2-1-安装sudo"><a href="#2-1-安装sudo" class="headerlink" title="2.1 安装sudo"></a>2.1 安装sudo</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">root@FreeBSD:/home/zhouzhou <span class="comment"># pkg install sudo</span></span><br><span class="line">Updating FreeBSD repository catalogue...</span><br><span class="line">FreeBSD repository is up to date.</span><br><span class="line">All repositories are up to date.</span><br><span class="line">The following 1 package(s) will be affected (of 0 checked):</span><br><span class="line"></span><br><span class="line">New packages to be INSTALLED:</span><br><span class="line">	sudo: 1.9.5p2</span><br><span class="line"></span><br><span class="line">Number of packages to be installed: 1</span><br><span class="line"></span><br><span class="line">The process will require 4 MiB more space.</span><br><span class="line">942 KiB to be downloaded.</span><br><span class="line"></span><br><span class="line">Proceed with this action? [y/N]: y</span><br><span class="line"></span><br><span class="line"><span class="comment"># 之前sudo爆出漏洞，最新版的sudo已经修复了，不放心自己去比对一下版本</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-修改sudoers配置文件"><a href="#2-2-修改sudoers配置文件" class="headerlink" title="2.2 修改sudoers配置文件"></a>2.2 修改sudoers配置文件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">root@FreeBSD:/home/zhouzhou <span class="comment"># nano /usr/local/etc/sudoers</span></span><br><span class="line"></span><br><span class="line"><span class="comment">##</span></span><br><span class="line">root ALL=(ALL) ALL</span><br><span class="line"></span><br><span class="line"><span class="comment">## Uncomment to allow members of group wheel to execute any command</span></span><br><span class="line">%wheel ALL=(ALL) ALL</span><br><span class="line"></span><br><span class="line"><span class="comment">## 删除%wheel前的#即可</span></span><br></pre></td></tr></table></figure>
+
+<p>至于下面是否需要取消wheel组用户使用sudo密码还是啥自己看就好了。</p>
+<h2 id="3-sudo用户安全策略"><a href="#3-sudo用户安全策略" class="headerlink" title="3.sudo用户安全策略"></a>3.sudo用户安全策略</h2><blockquote>
+<p>虽然FreeBSD是我一个人在用，但是有时候自己不想让具有sudo权限的用户执行一些毕竟敏感的权限，典型的是：修改root密码，kill其他用户进程，这是很危险的操作。</p>
+</blockquote>
+<p><em>注意</em>：如果需要设置安全策略的时候不对一个<code>wheel组</code>设置的话，就需要对单个用户进行设置，这里演示对<code>zhouzhou</code>账户进行单独的设置。</p>
+<h3 id="3-1-配置安全策略"><a href="#3-1-配置安全策略" class="headerlink" title="3.1 配置安全策略"></a>3.1 配置安全策略</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">root@FreeBSD:/home/zhouzhou <span class="comment"># visudo /usr/local/etc/sudoers.d/zhouzhou</span></span><br><span class="line">zhouzhou ALL=/usr/bin, !/usr/bin/passwd, !/usr/bin/<span class="built_in">kill</span></span><br></pre></td></tr></table></figure>
+
+<p>这里允许<code>zhouzhou</code>执行<code>/usr/bin</code>下的所有命令，但是禁止了<code>/usr/bin/passwd</code>和<code>/usr/bin/kill</code>.</p>
+<h3 id="3-2-测试安全策略是否生效"><a href="#3-2-测试安全策略是否生效" class="headerlink" title="3.2 测试安全策略是否生效"></a>3.2 测试安全策略是否生效</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">zhouzhou@FreeBSD:~ % sudo passwd</span><br><span class="line">Sorry, user zhouzhou is not allowed to execute <span class="string">&#x27;/usr/bin/passwd&#x27;</span> as root on FreeBSD.local.</span><br><span class="line"></span><br><span class="line"><span class="comment"># 嘿嘿，测试成功了</span></span><br></pre></td></tr></table></figure>
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>John Doe</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://example.com/2021/05/07/FreeBSD-init-sudo/">http://example.com/2021/05/07/FreeBSD-init-sudo/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/FreeBSD/"># FreeBSD</a>
+                    
+                        <a href="/tags/sudo/"># sudo</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2021/05/07/FreeBSD-install-Zsh/">为FreeBSD安装Zsh</a>
+            
+            
+            <a class="next" rel="next" href="/2021/05/07/seo-for-hexo/">为Hexo添加优化便于百度收录</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© John Doe | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+</html>

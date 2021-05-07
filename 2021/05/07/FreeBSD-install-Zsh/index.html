@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="John Doe">
+
+
+
+
+
+<title>为FreeBSD安装Zsh | Hexo</title>
+
+
+
+    <link rel="icon" href="/a.png">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">CatBSD&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">CatBSD&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">为FreeBSD安装Zsh</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">John Doe</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">May 7, 2021&nbsp;&nbsp;13:14:26</a>
+                        </span>
+                    
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <blockquote>
+<p>也许是我很垃圾，没有了解过<code>csh</code>和<code>tcsh</code>。我是从Linux转过来的，实在忍受不了Linux一键更新系统与所有的程序，以及配置文件位置乱放。我本身也是在使用macOS作为开发主系统，准备学习之后把开发部署的后端迁移到FreeBSD上。</p>
+</blockquote>
+<span id="more"></span>
+<blockquote>
+<p>我选择的方案是：Zsh + OhmyZsh</p>
+</blockquote>
+<h3 id="查看当前系统已安装的shell"><a href="#查看当前系统已安装的shell" class="headerlink" title="查看当前系统已安装的shell"></a>查看当前系统已安装的shell</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">ruoyi@freebsd:/ % cat /etc/shells</span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="variable">$FreeBSD</span>: releng/12.2/lib/libc/gen/shells 336840 2018-07-28 20:21:23Z brd $</span></span><br><span class="line"><span class="meta">#</span><span class="bash"></span></span><br><span class="line"><span class="bash"><span class="comment"># List of acceptable shells for chpass(1).</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Ftpd will not allow users to connect who are not using</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> one of these shells.</span></span><br><span class="line"></span><br><span class="line">/bin/sh</span><br><span class="line">/bin/csh</span><br><span class="line">/bin/tcsh</span><br><span class="line">/usr/local/bin/bash</span><br><span class="line">/usr/local/bin/rbash</span><br><span class="line">/usr/local/bin/rzsh</span><br></pre></td></tr></table></figure>
+
+<h3 id="安装Zsh"><a href="#安装Zsh" class="headerlink" title="安装Zsh"></a>安装Zsh</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ruoyi@freebsd:/ % sudo pkg install zsh curl git</span><br><span class="line">Updating FreeBSD repository catalogue...</span><br><span class="line">FreeBSD repository is up to date.</span><br><span class="line">All repositories are up to date.</span><br><span class="line">Checking integrity... done (0 conflicting)</span><br><span class="line">The most recent versions of packages are already installed</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 这里安装的时候，提示我需要下载1G的二进制，有点惊讶，是FreeBSD过分的干净了嘛？</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="切换默认的shell"><a href="#切换默认的shell" class="headerlink" title="切换默认的shell"></a>切换默认的shell</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 我这里只给当前用户ruoyi设置了zsh</span></span><br><span class="line">chsh -s zsh ruoyi</span><br><span class="line"></span><br><span class="line"><span class="comment"># 或者</span></span><br><span class="line">chsh -s /usr/<span class="built_in">local</span>/bin/fish</span><br></pre></td></tr></table></figure>
+
+<h3 id="安装ohmyzsh"><a href="#安装ohmyzsh" class="headerlink" title="安装ohmyzsh"></a>安装ohmyzsh</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 可能是我当前网络环境比较的糟糕，raw.github.com访问不了，也懒得挂代理了</span></span><br><span class="line"><span class="comment"># 复制 https://github.com/ohmyzsh/ohmyzsh/blob/master/tools/install.sh 的代码粘贴到 zsh.sh 中</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 或者直接用脚本安装</span></span><br><span class="line">sh -c <span class="string">&quot;<span class="subst">$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)</span>&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装ohmyzsh</span></span><br><span class="line">sh zsh.sh</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">freebsd% sh zsh.sh</span><br><span class="line">Cloning Oh My Zsh...</span><br><span class="line">Cloning into <span class="string">&#x27;/home/ruoyi/.oh-my-zsh&#x27;</span>...</span><br><span class="line">remote: Enumerating objects: 1194, <span class="keyword">done</span>.</span><br><span class="line">remote: Counting objects: 100% (1194/1194), <span class="keyword">done</span>.</span><br><span class="line">remote: Compressing objects: 100% (1162/1162), <span class="keyword">done</span>.</span><br><span class="line">remote: Total 1194 (delta 20), reused 1132 (delta 16), pack-reused 0</span><br><span class="line">Receiving objects: 100% (1194/1194), 827.06 KiB | 23.00 KiB/s, <span class="keyword">done</span>.</span><br><span class="line">Resolving deltas: 100% (20/20), <span class="keyword">done</span>.</span><br><span class="line"></span><br><span class="line">Looking <span class="keyword">for</span> an existing zsh config...</span><br><span class="line">Using the Oh My Zsh template file and adding it to ~/.zshrc.</span><br><span class="line"></span><br><span class="line">Time to change your default shell to zsh:</span><br><span class="line">Do you want to change your default shell to zsh? [Y/n] y</span><br><span class="line">Changing the shell...</span><br><span class="line">Password:</span><br><span class="line">pwd_mkdb: warning, unknown root shell</span><br><span class="line">chsh: user information updated</span><br><span class="line">Shell successfully changed to <span class="string">&#x27;/usr/local/bin/zsh&#x27;</span>.</span><br><span class="line"></span><br><span class="line">         __                                     __</span><br><span class="line">  ____  / /_     ____ ___  __  __   ____  _____/ /_</span><br><span class="line"> / __ \/ __ \   / __ `__ \/ / / /  /_  / / ___/ __ \</span><br><span class="line">/ /_/ / / / /  / / / / / / /_/ /    / /_(__  ) / / /</span><br><span class="line">\____/_/ /_/  /_/ /_/ /_/\__, /    /___/____/_/ /_/</span><br><span class="line">                        /____/                       ....is now installed!</span><br><span class="line">Before you scream Oh My Zsh! please look over the ~/.zshrc file to select plugins, themes, and options.</span><br><span class="line"> Follow us on Twitter: https://twitter.com/ohmyzsh</span><br><span class="line"> Join our Discord server: https://discord.gg/ohmyzsh</span><br><span class="line"> Get stickers, shirts, coffee mugs and other swag: https://shop.planetargon.com/collections/oh-my-zsh</span><br><span class="line">➜  /</span><br><span class="line">➜  /</span><br><span class="line">➜  /</span><br></pre></td></tr></table></figure>
+
+<h3 id="设置Zsh主题"><a href="#设置Zsh主题" class="headerlink" title="设置Zsh主题"></a>设置Zsh主题</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 编辑zsh配置文件</span></span><br><span class="line">sudo nano ~/.zshrc</span><br><span class="line"></span><br><span class="line"><span class="comment"># 修改默认主题为 ys</span></span><br><span class="line">ZSH_THEME=<span class="string">&quot;ys&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 重载配置文件</span></span><br><span class="line"><span class="built_in">source</span> ~/.zshrc</span><br></pre></td></tr></table></figure>
+
+<h3 id="为Zsh添加插件"><a href="#为Zsh添加插件" class="headerlink" title="为Zsh添加插件"></a>为Zsh添加插件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># sudo  按两下ESC，就会在命令行头部加上sudo,Zsh自带</span></span><br><span class="line"><span class="comment"># zsh-autosuggestions  检索输入过的命令并匹配最相似的，需要手动安装</span></span><br><span class="line"></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/zsh-users/zsh-autosuggestions <span class="variable">$&#123;ZSH_CUSTOM:-~/.oh-my-zsh/custom&#125;</span>/plugins/zsh-autosuggestions</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加插件到配置文件</span></span><br><span class="line">plugins=(sudo git zsh-autosuggestions)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重载配置文件</span></span><br><span class="line"><span class="built_in">source</span> ~/.zshrc</span><br></pre></td></tr></table></figure>
+
+<h3 id="Neofetch"><a href="#Neofetch" class="headerlink" title="Neofetch"></a>Neofetch</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ruoyi @ freebsd in / [1:38:05]</span></span><br><span class="line">$ neofetch</span><br><span class="line">```                        `       ruoyi@freebsd.local</span><br><span class="line">  ` `.....---.......--.```   -/    -------------------</span><br><span class="line">  +o   .--`         /y:`      +.   OS: FreeBSD 12.2-RELEASE amd64</span><br><span class="line">   yo`:.            :o      `+-    Uptime: 6 hours, 10 mins</span><br><span class="line">    y/               -/`   -o/     Packages: 73 (pkg)</span><br><span class="line">   .-                  ::/sy+:.    Shell: zsh 5.8</span><br><span class="line">   /                     `--  /    Terminal: /dev/pts/0</span><br><span class="line">  `:                          :`   CPU: Intel Xeon E5-2660 0 (2) @ 2.200GHz</span><br><span class="line">  `:                          :`   GPU: SVGA II Adapter</span><br><span class="line">   /                          /    Memory: 307MiB / 2010MiB</span><br><span class="line">   .-                        -.</span><br><span class="line">    --                      -.</span><br><span class="line">     `:`                  `:`</span><br><span class="line">       .--             `--.</span><br><span class="line">          .---.....----.</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># ruoyi @ freebsd in / [1:38:45]</span></span><br></pre></td></tr></table></figure>
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>John Doe</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://example.com/2021/05/07/FreeBSD-install-Zsh/">http://example.com/2021/05/07/FreeBSD-install-Zsh/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/FreeBSD/"># FreeBSD</a>
+                    
+                        <a href="/tags/Zsh/"># Zsh</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+            
+            <a class="next" rel="next" href="/2021/05/07/FreeBSD-init-sudo/">FreeBSD配置sudo并设置安全策略</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© John Doe | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+</html>
