@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Cx330">
+
+
+
+
+    <meta name="keywords" content="FreeBSD,Linux,Pi,OpenBSD">
+
+
+<title>在Linux下添加软Raid | CatBSD</title>
+
+
+
+    <link rel="icon" href="/a.png">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">CatBSD&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">CatBSD&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">在Linux下添加软Raid</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">Cx330</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">May 10, 2021&nbsp;&nbsp;14:03:59</a>
+                        </span>
+                    
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <blockquote>
+<p>需要对一批升级的机子创建<code>软raid</code>，之前合作方那边说，LVM会影响I/O的速度（我想就三块固态：两张U.2 2.93T，1张6.101T的NVME转U.2，就算影响也是微乎其微的）</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">xxxx@xxxx:~$ sudo fdisk -l |grep Ti</span><br><span class="line">Disk /dev/nvme0n1: 2.93 TiB, 3200631791616 bytes, 6251233968 sectors</span><br><span class="line">Disk /dev/nvme1n1: 6.101 TiB, 7681501126656 bytes, 15002931888 sectors</span><br><span class="line">Disk /dev/nvme2n1: 2.93 TiB, 3200631791616 bytes, 6251233968 sectors</span><br><span class="line">Disk /dev/mapper/storage_vg-storage_lv: 12.83 TiB, 14082753167360 bytes, 27505377280 sectors</span><br></pre></td></tr></table></figure>
+
+<h3 id="操作过程"><a href="#操作过程" class="headerlink" title="操作过程"></a>操作过程</h3><h4 id="分区过程"><a href="#分区过程" class="headerlink" title="分区过程"></a>分区过程</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 参考：https://www.linuxprobe.com/linux-raid.html</span></span><br><span class="line"><span class="comment"># 主要注意：fdisk命令只能对容量在2T以下的硬盘进行分区，超过2T则需要使用parted工具</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 在此之前，需要对之前的LVM存在的逻辑盘/组/物理盘进行删除，参考之前的文章就好了，这里不再阐述</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#通过lsblk或者fdisk -l ｜grep Ti 进行过滤显示识别到的硬盘</span></span><br><span class="line"></span><br><span class="line">parted /dev/nvme0n1  <span class="comment">#进入交互模式</span></span><br><span class="line">(parted) mklabel gpt  <span class="comment"># 将MBR磁盘格式化为GPT</span></span><br><span class="line">(parted) p <span class="comment">#打印当前分区，由于还没有创建，所以看不到</span></span><br><span class="line">(parted) mkpart primary 0 -1  <span class="comment"># 分一个5T的主分区</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># mkpart PART-TYPE [FS-TYPE] START END 说明</span></span><br><span class="line"><span class="comment"># mkpart 主分区，logical 逻辑分区，extended 扩展分区</span></span><br><span class="line"><span class="comment"># FS-TYPE ext4，xfs</span></span><br><span class="line"><span class="comment"># START 0 当前分区的起始点为磁盘的第一个扇区，1G 当前分区起始点为磁盘的1G处</span></span><br><span class="line"><span class="comment"># END 设定磁盘的分区结束点，-1 设定当前分区的结束点为磁盘的最后一个分区，10G磁盘的10G处</span></span><br><span class="line"></span><br><span class="line">(parted) p  <span class="comment">#再次打印分区查看信息</span></span><br><span class="line">(parted) q  <span class="comment">#退出</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 剩余的分区的创建方式也是一样的</span></span><br></pre></td></tr></table></figure>
+
+
+<h4 id="创建软raid"><a href="#创建软raid" class="headerlink" title="创建软raid"></a>创建软raid</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mdadm -C /dev/md0 -a yes -l 0 -n 3 /dev/sdb /dev/sdc /dev/sdd /dev/sde</span><br><span class="line">mdadm -C /dev/md0 -a yes -l 0 -n 3 /dev/sd[bcde]</span><br><span class="line"></span><br><span class="line">-C 创建</span><br><span class="line">-l 级别</span><br><span class="line">-n 磁盘个数</span><br><span class="line">-a yes，自动为其创建设备文件</span><br><span class="line">-x 指定空闲磁盘个数，空闲盘可以在工作盘损坏后自动顶替</span><br></pre></td></tr></table></figure>
+
+<h4 id="格式化md0并写入配置"><a href="#格式化md0并写入配置" class="headerlink" title="格式化md0并写入配置"></a>格式化md0并写入配置</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mkfs.xfs /dev/md0</span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置写入</span></span><br><span class="line">mdadm -Ds /dev/md0 &gt; mdadm.conf</span><br><span class="line">mv mdadm.conf /etc/</span><br></pre></td></tr></table></figure>
+
+<h4 id="查看raid磁盘状态"><a href="#查看raid磁盘状态" class="headerlink" title="查看raid磁盘状态"></a>查看raid磁盘状态</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mdadm -D /dev/md0</span><br><span class="line"><span class="comment"># 或者使用 </span></span><br><span class="line">cat /proc/mdstat</span><br></pre></td></tr></table></figure>
+<p>剩下的比如：模拟数据盘损坏等之类的，可以参考如下文章：<br>参考：<a target="_blank" rel="noopener" href="https://yaozhijin.gitee.io/linux%E4%B8%8B%E4%BD%BF%E7%94%A8mdadm%E7%BB%84%E8%BD%AFraid.html#%E6%A8%A1%E6%8B%9F%E6%95%B0%E6%8D%AE%E7%9B%98%E6%8D%9F%E5%9D%8F">https://yaozhijin.gitee.io/linux下使用mdadm组软raid.html#模拟数据盘损坏</a></p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>Cx330</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://catbsd.com/2021/05/10/linux-softraid/">https://catbsd.com/2021/05/10/linux-softraid/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Linux/"># Linux</a>
+                    
+                        <a href="/tags/Raid/"># Raid</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+            
+            <a class="next" rel="next" href="/2021/05/08/idea-man/">IDEA使用时调优总结</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Cx330 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+</html>
